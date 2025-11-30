@@ -1,3 +1,5 @@
+Chat: https://chatgpt.com/share/692454e2-4434-800a-8f2c-2e005d0b402e
+
 ⭐ EINFACHE BESCHREIBUNG DES ALGORITHMUS
 
 Der Code simuliert jede einzelne Stunde zwischen Anfang 2023 und Ende 2024 und berechnet dabei:
