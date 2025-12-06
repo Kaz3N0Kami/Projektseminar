@@ -1,0 +1,87 @@
+# ---- Visual Studio build output ----
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+Generated\ Files/
+
+# ---- Visual Studio user-specific files ----
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# ---- Visual Studio Backup / Temp ----
+*.tmp
+*.bak
+*.log
+*.svclog
+*.pdb
+
+# ---- NuGet ----
+*.nupkg
+**/packages/*
+!**/packages/build/
+*.snupkg
+project.lock.json
+project.assets.json
+artifacts/
+
+# ---- VS Cache ----
+.vs/
+.vscode/
+
+# ---- Test results ----
+[Tt]est[Rr]esult*/
+[TestResults]/
+
+# ---- IIS Express ----
+iisexpress/
+*.dbmdl
+
+# ---- Build Artifacts ----
+*.dll
+*.exe
+*.appx
+*.appxbundle
+*.msi
+*.msix
+*.msixbundle
+
+# ---- Others ----
+*.cache
+*.config
+*.tlog
+*.psess
+*.vsp
+*.vspscc
+*.vssscc
+*.DS_Store
+Thumbs.db
+
+# ---- Resharper ----
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# ---- Rider ----
+.idea/
+
+# ---- Publish ----
+publish/
+out/
+
+# ---- SQL files ----
+*.mdf
+*.ldf
+
+# ---- JetBrains Rider ----
+.idea/
+
+# ---- Backup files ----
+*.orig
+
+# ---- Local environment files ----
+.env
+.env.*
+
