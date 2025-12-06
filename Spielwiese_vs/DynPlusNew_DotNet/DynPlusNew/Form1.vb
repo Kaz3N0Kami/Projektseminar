@@ -232,15 +232,18 @@ Public Class DynPlus100
             If Alg = 200 And Not keinAufschlag Then
                 REM weite Verschiebung == nicht mehr relevant - war nicht optimal !!!
                 REM == nicht mehr relevant - war nicht optimal !!!
-                If p0 >= 0.04 Then aufschlag = 0.06
-                If p0 >= 0.05 Then aufschlag = 0.12
-                If p0 >= 0.06 Then aufschlag = 0.12
-                If p0 >= 0.07 Then aufschlag = 0.12
-                If p0 >= 0.08 Then aufschlag = 0.12
-                If p0 >= 0.09 Then aufschlag = 0.06
-                If p0 >= 0.1 Then aufschlag = 0.06
-                If p0 >= 0.11 Then aufschlag = 0.04
-                If p0 >= 0.12 Then aufschlag = 0#
+
+                Dim dict = LoadAufschlagDict("aufschlag.csv")
+
+                ' Alle p0_min suchen die <= p0 sind → größtes nehmen
+                Dim match = dict _
+                .Where(Function(kvp) p0 >= kvp.Key) _
+                .OrderByDescending(Function(kvp) kvp.Key) _
+                .FirstOrDefault()
+
+                If match.Key > 0 Then
+                    aufschlag = match.Value
+                End If
             End If
             If Alg = 210 And Not keinAufschlag Then
                 REM kurze Verschiebung des Aufschlags unmittelbar nach Minimalperiode
@@ -258,6 +261,27 @@ Public Class DynPlus100
         pb = p0 + abg
 
         GetDynPlusPreis = pb
+    End Function
+
+    Function LoadAufschlagDict(path As String) As Dictionary(Of Decimal, Decimal)
+        Dim dict As New Dictionary(Of Decimal, Decimal)
+
+        For Each line In IO.File.ReadAllLines(path)
+            If String.IsNullOrWhiteSpace(line) Then Continue For
+            If line.Trim.StartsWith("#") Then Continue For
+
+            Dim parts = line.Split(";"c)
+            If parts.Length >= 2 Then
+                Dim key As Decimal = CDec(parts(0))
+                Dim value As Decimal = CDec(parts(1))
+
+                If Not dict.ContainsKey(key) Then
+                    dict.Add(key, value)
+                End If
+            End If
+        Next
+
+        Return dict
     End Function
 
     Function Test_DynPlusPreis(i As Integer) As String

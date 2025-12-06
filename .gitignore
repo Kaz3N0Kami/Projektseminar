@@ -1,5 +1,5 @@
 # ---- Visual Studio build output ----
-bin/
+bin/*
 obj/
 [Bb]uild/
 [Ll]og/
@@ -84,4 +84,7 @@ out/
 # ---- Local environment files ----
 .env
 .env.*
+
+# Ausnahme: Alle data-Ordner und deren Inhalt dürfen ins Git
+!bin/Debug/net8.0-windows/data/*
 
