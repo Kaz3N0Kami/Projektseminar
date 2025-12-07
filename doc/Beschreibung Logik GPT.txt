@@ -1,0 +1,588 @@
+Chat: https://chatgpt.com/share/692454e2-4434-800a-8f2c-2e005d0b402e
+
+⭐ EINFACHE BESCHREIBUNG DES ALGORITHMUS
+
+Der Code simuliert jede einzelne Stunde zwischen Anfang 2023 und Ende 2024 und berechnet dabei:
+
+wie viel Strom das Haus benötigt
+
+wie viel davon aus dem Netz kommt
+
+wie der Speicher geladen oder entladen wird
+
+wie viel der Strom kostet (bei verschiedenen Tarifmodellen)
+
+Der Algorithmus entscheidet also in jeder Stunde:
+
+1. Welcher Tarif gilt?
+
+Konstanter Preis → einfache Berechnung
+
+Dynamischer Preis → Preis ändert sich jede Stunde
+
+Mit oder ohne Speicher
+
+Mit Speziallogik (DynPlus)
+
+2. Soll der Speicher geladen werden?
+
+Der Algorithmus schaut 24 Stunden in die Zukunft (Lookahead):
+
+Gibt es bald günstigere Stunden?
+
+Wenn JA, wartet er mit dem Laden.
+
+Wenn NEIN, und die aktuelle Stunde ist günstig → Speicher wird vollgeladen.
+
+ABER:
+
+Wenn ein Preisaufschlag aktiv ist → nicht laden.
+
+3. Wie wird der Hausverbrauch gedeckt?
+
+Für jede Stunde:
+
+Wenn der Speicher genug Energie hat:
+
+→ Haus verbraucht nur Speicher → kein Netzverbrauch
+
+Wenn der Speicher leer oder fast leer ist:
+
+→ restliche Energie wird aus dem Stromnetz gezogen
+
+4. Kosten werden berechnet
+
+Je nach Tarif:
+
+Konstantpreis
+
+einfache Formel: Preis * Verbrauch
+
+Dynamischer Tarif
+
+aktueller Stundenpreis * Netzverbrauch
+
+wenn Preis negativ ist → Kunde verdient Geld
+
+DynPlus Tarif
+
+sehr komplex:
+
+prüft zusätzliche Aufschläge
+
+berechnet Verluste/Gewinne
+
+verschiebt bestimmte Abgaben
+
+bestimmt einen „optimalen Preis“
+
+Der Code sammelt dabei viele Statistiken:
+
+Wie oft Speicher leer war
+
+Wie viel Verlust der Staat hätte
+
+Wie viel der Kunde spart oder verdient
+
+Wie viel Netzverbrauch durch Aufschläge entsteht
+
+5. Log speichern
+
+Wenn Logging eingeschaltet ist:
+
+Jede Stunde wird in einer Logdatei gespeichert, inkl.:
+
+Datum
+
+Preise
+
+Netzverbrauch
+
+Speicherstand
+
+DynPlusPreis
+
+Verlust usw.
+
+6. Zwischenergebnisse aktualisieren
+
+Der Code aktualisiert regelmäßig (oder am Ende):
+
+Gesamtkosten
+
+Einsparungen
+
+Speicherstände
+
+Verluste / Gewinne
+
+Damit können andere Programmteile die Simulation anzeigen.
+
+⭐ Kurzfassung in 3 Sätzen
+
+Der Algorithmus simuliert jede Stunde, wie viel Strom das Haus braucht, ob der Speicher geladen/entladen wird und ob Strom aus dem Netz kommt. Dabei berücksichtigt er dynamische Strompreise, mögliche günstigere Stunden in der Zukunft und verschiedene Tarifmodelle. Am Ende berechnet er die gesamten Kosten, Einsparungen und Statistiken.
+
+=================================================================================================
+
+⭐ ALG 10 – Fester Preis, kein Speicher-Tricksen
+
+Kurz gesagt:
+Der Strompreis bleibt immer gleich. Es gibt keinen Grund, auf billige Stunden zu warten.
+
+Der Algorithmus macht daher nur:
+
+Jede Stunde berechnen → Verbrauch * Preis
+
+Nichts optimieren, nichts verschieben
+
+Kein Lookahead, kein Speicher-Management
+
+→ Einfachster Modus.
+
+⭐ ALG 100 – Dynamischer Preis ohne Speicher-Intelligenz
+
+Kurz gesagt:
+Die Preise ändern sich stündlich, aber der Speicher wird noch nicht taktisch genutzt.
+
+Der Algorithmus macht:
+
+Jede Stunde nehmen, wie sie ist
+
+Wenn teuer → Pech
+
+Wenn billig → Glück
+
+Speicher wird nicht absichtlich geladen, nur das Nötigste
+
+→ Dynamische Preise, aber keine Optimierung.
+
+⭐ ALG 110 – Dynamischer Preis mit Speicher-Optimierung
+
+Das ist schon cleverer.
+
+Hier macht der Algorithmus:
+
+Stündliche Preise einlesen
+
+24 Stunden nach vorne schauen
+
+Überlegen: „Soll ich jetzt laden oder lieber später, wenn’s günstiger ist?“
+
+Wenn die aktuelle Stunde günstig ist → Speicher vollmachen
+
+Wenn die nächsten Stunden billiger aussehen → warten
+
+Speicher nutzen, um teure Stunden zu umgehen
+
+→ Das ist das erste richtige „Smart Charging“-Verhalten.
+
+⭐ ALG 200 – DynPlus: Der komplexe Spezialtarif
+
+Das ist der Modus, in dem viel Speziallogik steckt.
+
+Er macht sehr viele zusätzliche Dinge:
+
+✔ Preisaufschläge berechnen (z. B. staatliche Abgaben)
+✔ Spotpreis korrigieren
+✔ Prüfen, ob der Kunde oder der Staat verliert
+✔ Berechnen eines „optimalen Preises“
+✔ Logik für negative Preise
+✔ Regeln, wann der Speicher nicht geladen werden darf
+
+Die große Idee dahinter:
+
+Kunden sollen bei sehr tiefen Preisen profitieren
+
+aber nicht so stark, dass es für den Tarifanbieter gefährlich wird
+
+deshalb werden Aufschläge, Sperrzeiten und Sonderpreise dynamisch berechnet
+
+Kurz gesagt:
+
+→ Das ist der „politisch korrekte“ dynamische Tarif, der versucht, fair und ausgewogen zu sein — aber damit sehr kompliziert wird.
+
+⭐ ALG 210 – DynPlus + Smart Charging
+
+Dieser Modus kombiniert:
+
+DynPlus-Preisregeln
+
+Smartes Speichermanagement (Lookahead)
+
+Also:
+
+Algorithmus entscheidet jede Stunde:
+
+„Welcher Preis gilt? (mit Aufschlägen, Korrekturen, Effekten)“
+
+„Darf ich den Speicher laden?“
+
+„Ist eine günstigere Stunde in den nächsten 24h zu erwarten?“
+
+„Entstehen Verluste für Anbieter oder Staat?“
+
+Das ist der komplexeste und „intelligenteste“ Modus.
+
+⭐ ULTRA-Kurzfassung aller Modi
+Modus	Idee	Verhalten
+10	Fixpreis	Kein Denken, einfach Preis * Verbrauch
+100	Dynamisch, aber simpel	Preis ändert sich stündlich, aber keine Speicherstrategie
+110	Dynamisch + Speicheroptimierung	„Schlaues“ Laden/Entladen
+200	DynPlus	Extra Regeln, Aufschläge, optimale Preise
+210	DynPlus + Smart Charging	Komplettmodus: volle Komplexität + Speicherintelligenz
+
+
+======================================================================================
+
+
+⭐ TARIFMODUS 10 — Konstanter Strompreis
+Was bedeutet dieser Modus?
+
+Der Strom kostet zu jeder Stunde gleich viel.
+Es gibt keine dynamischen Preise, keine Aufschläge, keinen Lookahead.
+
+Der Speicher wird nur benutzt, wenn der Verbraucher das möchte.
+
+🔢 Rechenlogik / Formeln
+1. Verbrauch pro Stunde
+Netzverbrauch = Hausverbrauch – Speicherabgabe
+
+2. Preis pro Stunde
+Kosten[h] = Netzverbrauch[h] * KonstanterPreis
+
+3. Speicher
+
+Wenn geladen wird:
+
+SpeicherStand += Ladeleistung * Ladeverlust
+
+
+Wenn entladen wird:
+
+SpeicherStand -= Entladeleistung / Entladeverlust
+
+4. Gesamtkosten
+Gesamtkosten = Summe(Kosten[h] aller Stunden)
+
+⭐ TARIFMODUS 100 — Reiner dynamischer Börsenstrompreis
+Was bedeutet dieser Modus?
+
+Jede Stunde hat ihren eigenen Preis.
+
+Es gibt keine Sonderlogik, nur dynamischer Preis * Verbrauch.
+
+Der Speicher wird genutzt, wenn ein Vorteil besteht (günstige Stunde → Laden).
+
+🔢 Rechenlogik / Formeln
+1. Preis pro Stunde
+Kosten[h] = Netzverbrauch[h] * BörsenPreis[h]
+
+2. Ladeentscheidung
+
+Der Algorithmus lädt nur, wenn die Stunde günstig ist:
+
+Wenn BörsenPreis[h] <= BörsenPreis[h+Lookahead]:
+    Laden
+Sonst:
+    Warten
+
+3. Speicherberechnung
+
+Wird geladen:
+
+Ladung = Ladeleistung * LadeLetFaktor
+SpeicherStand = min(SpeicherStand + Ladung, Speicherkapazität)
+
+
+Wird entladen:
+
+Abgabe = min(Hausverbrauch, SpeicherStand)
+SpeicherStand -= Abgabe / Entladeverlust
+Netzverbrauch = Hausverbrauch - Abgabe
+
+4. Gesamtkosten
+Gesamtkosten = Summe(BörsenPreis[h] * Netzverbrauch[h])
+
+⭐ TARIFMODUS 110 — Dynamisch + Speicher wird automatisch nach günstigsten 24h geladen
+
+Dieser Modus nutzt:
+
+dynamische Preise
+
+24-Stunden-Lookahead
+
+automatische Speicherladung in den billigsten Stunden
+
+🔢 Rechenlogik / Formeln
+Schritt 1 – Lookahead
+
+Der Algorithmus sucht:
+
+BilligsteStunde = min(BörsenPreis[h … h+24])
+
+Schritt 2 – Ladelogik
+
+Wenn die aktuelle Stunde zu den günstigsten gehört:
+
+Wenn BörsenPreis[h] <= BilligsteStunde:
+    Laden
+
+
+Sonst:
+
+Nicht laden
+
+Schritt 3 – Kosten
+
+Gleich wie Modus 100:
+
+Kosten[h] = Netzverbrauch[h] * BörsenPreis[h]
+
+⭐ TARIFMODUS 200+ — DynPlus (komplexer Tarif)
+
+Dieser Teil ist der mit Abstand umfangreichste.
+Der Code enthält:
+
+Preisaufschlag („Bremse“)
+
+staatlichen Verlust
+
+optimierten Preis
+
+Buchungslogik
+
+Belastung von Speicherladungen
+
+⭐ Worum geht es hier?
+
+Der Tarif “DynPlus” versucht:
+
+billige Stunden zu „puffern“
+
+teure Stunden zu entlasten
+
+einen einheitlichen Durchschnittspreis zu erreichen:
+
+DynPlusPreis = (Summe(Einkaufskosten)) / (Summe(Verbrauch))
+
+
+Der Speicher wird dabei aktiv genutzt, um den Durchschnitt stabil zu halten.
+
+🔢 Rechenlogik / Formeln (vereinfacht)
+1. Preisaufschlag prüfen
+
+Wenn der Preis extrem niedrig oder sogar negativ:
+
+Wenn Preis[h] < -3.5:
+    Aufschlag = True
+Sonst:
+    Aufschlag = False
+
+
+Wenn Aufschlag aktiv:
+
+Nicht laden
+
+2. Speicherladung mit DynPlus
+
+Wenn Speicher geladen wird:
+
+SpeicherStand += Ladeleistung * Ladeverlust
+DynPlusEinkaufsmengen[h] += Ladeleistung
+DynPlusEinkaufsWert[h] += Ladeleistung * BörsenPreis[h]
+
+3. DynPlus Preisberechnung
+DynPlusPreis = Summe(EinkaufsWert) / Summe(Einkaufsmengen)
+
+4. Kostenberechnung
+
+Wenn Verbrauch in teurer Stunde:
+
+Kosten[h] = DynPlusPreis * Netzverbrauch[h]
+
+
+Wenn Verbrauch in billiger Stunde:
+
+Kosten[h] = BörsenPreis[h] * Netzverbrauch[h]
+
+5. Staatlicher Verlust (falls Preisbremse greift)
+StaatlicherVerlust[h] = (RealPreis[h] - GebremsterPreis) * Verbrauch[h]
+
+
+
+============================================================================================================
+Pseudocode
+============================================================================================================
+
+FOR jede Stunde ID von 1 bis anzahl:
+
+    // --- Grundinitialisierung ---
+    Setze Ladeverbrauch = 0
+    Leere Lade- und Speicher-Logtexte
+    Setze Verbrauch = 0
+
+    // --- Preisberechnung konstanter Tarif ---
+    SummePreisKonstant += PreisKonstant * Leistung
+
+
+    // === FALL: Algorithmus 10 (OHNE SPEICHER) ===
+    IF Alg == 10 THEN
+        SummePreisDyn += pb[ID] * Leistung
+    END IF
+
+
+    // === FALL: dynamische Tarife MIT Speicher ===
+    IF Alg >= 100 THEN
+
+        // --- Lookahead nach günstigen Preisen ---
+        LH = Lookahead über 24 Stunden
+        falls LH günstige Stunde findet:
+            aktualisiere lhfound
+
+        // --- DynPlus-Preis für diese Stunde berechnen ---
+        DynPlusPreis = Funktion GetDynPlusPreis(...)
+
+        // --- Ladeentscheidung ---
+        IF aktuelle Stunde == gefundene Lookahead-Stunde AND kein Preisaufschlag aktiv:
+
+            // → Speicher maximal laden
+            Ladeverbrauch = Cap - Speicher
+            Verbrauch = Ladeverbrauch + Hausverbrauch(Leistung)
+            Speicher += Ladeverbrauch
+            VerbrauchNetz = Verbrauch
+
+        ELSE
+            // --- Normaler Verbrauchsmodus ---
+            IF Speicher >= Leistung THEN
+                // Speicher deckt den Hausverbrauch komplett
+                Verbrauch = Leistung
+                Speicher -= Verbrauch
+                VerbrauchNetz = 0
+
+            ELSE IF Speicher == 0 THEN
+                // Speicher leer → alles aus dem Netz
+                Verbrauch = Leistung
+                VerbrauchNetz = Verbrauch
+
+            ELSE
+                // Teilweise Speicher, Rest Netz
+                VerbrauchNetz = Leistung - Speicher
+                Speicher = 0
+            END IF
+        END IF
+
+
+        // === TARIFMODUS 100 (Standard dynamisch – wie Tibber) ===
+        IF Alg == 100 THEN
+            SummePreisDyn += pb[ID] * VerbrauchNetz
+            falls pb < 0:
+                InputDynKunde += negativer Preis * VerbrauchNetz
+        END IF
+
+
+        // === TARIFMODUS 110 (dynamisch mit Speicherverlustberechnung) ===
+        IF Alg == 110 THEN
+            SummePreisDyn += p0[ID] * VerbrauchNetz
+            SummeVerlust += (pb[ID] - p0[ID]) * VerbrauchNetz
+            falls p0 < 0:
+                InputDynKunde += negativer Nettopreis * VerbrauchNetz
+        END IF
+
+
+        // Log: Speicher leer?
+        falls Speicher < 1:
+            SpeicherLeerStunden += 1
+
+
+        // === TARIFMODUS 200+ (DynPlus) ===
+        IF Alg >= 200 THEN
+
+            // --- Verwaltung Minimalperiode ---
+            IF p0[ID] < 0.03 THEN
+                Minimalperiode += 1
+            ELSE
+                wenn Minimalperiode > 0:
+                    MinimalwarAKTIV = TRUE
+                    Minimalperiode = 0
+            END IF
+
+            // --- automatische Verlust-Korrektur ---
+            IF SummeVerlust < -10 THEN
+                MinimalwarAKTIV = FALSE
+                STDAufschlagOffen += 1
+            ELSE
+                MinimalwarAKTIV = TRUE
+            END IF
+
+
+            // --- Standardpreis mit möglichem Aufschlag ---
+            IF p0[ID] <= STDAufschlagBis UND MinimalwarAKTIV == TRUE THEN
+                DynPreiSTD = pb[ID] + STDAufschlagWert
+                STDAufschlagBENUTZT += 1
+            ELSE
+                DynPreiSTD = pb[ID]
+            END IF
+
+
+            // --- endgültigen DynPlus-Preis bestimmen ---
+            DynPlusPreis = GetDynPlusPreis(...)
+
+            // --- Preis aufsummieren ---
+            SummePreisDyn += DynPlusPreis * VerbrauchNetz
+
+            // --- Verlustberechnung Kunde ---
+            preisdiff = pb[ID] - DynPlusPreis
+            preisdiffSTD = pb[ID] - DynPreiSTD
+
+            SummeVerlustDynPlusKunde += preisdiff * VerbrauchNetz
+
+            // --- Gesamtverlust inkl. "Normalkunden" ---
+            SummeVerlust +=
+                preisdiff * Leistung
+                + preisdiffSTD * Leistung * AnzahlNormalKundenproDynPlusKunde
+
+            // --- Log bei negativem Preis ---
+            falls DynPlusPreis < 0:
+                InputDynKunde += negativer Preis * VerbrauchNetz
+
+            // --- Logging Netzverbrauch mit/ohne Aufschlag ---
+            falls VerbrauchNetz > 0:
+                wenn Aufschlag aktiv:
+                    Lade-Zähler erhöhen
+                sonst:
+                    Nichtlade-Zähler erhöhen
+        END IF  // Ende DynPlus
+
+
+        // --- Log: Ladeindikator ---
+        falls Ladeverbrauch > 0:
+            vermerke Speicherladung
+
+        // --- Verluste in Log schreiben ---
+        falls Alg >= 200:
+            logge SummeVerlust
+
+        // --- vollständige Logzeile erzeugen ---
+        sinfo = "Datum ... Speicher ... Preise ... Verbrauch usw."
+
+        falls Debug-Level hoch:
+            Ausgabe sinfo auf Konsole
+
+    END IF // Ende dynamische Tariflogik
+
+
+    // ==== LOG-SPEICHERUNG ====
+    falls SaveLog:
+        Speichere alle relevanten Variablen in der Logdatenbank
+
+
+    // ==== GUI-/Ausgabe-Updates ====
+    falls Counter abgelaufen oder letzte Stunde:
+        Schreibe Summenwerte ins GUI
+
+
+    counter -= 1
+
+NEXT Stunde
+
+
