@@ -1,0 +1,311 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// HAUPTSCHLEIFE: Iteriere über alle Stunden im Simulationszeitraum
+// (Standard: vom 1.1.2023 bis kurz vor Ende 2024)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+FOR ID FROM 1 TO anzahl DO
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // Lokale Variablen initialisieren
+    // ───────────────────────────────────────────────────────────────────────────
+    ladeverbrauch = 0.0          // Aktueller Verbrauch für Speicherladung (kWh)
+    ladeinfo = ""                // Log-Info für Ladevorgang
+    ladeinfo2 = ""               // Zusätzliche Log-Info
+    sinfo = ""                   // Status-Info-String
+    SpeicherStatus = ""          // Status des Speichers
+    LH = 0                       // Lookahead-Ergebnis (Long)
+    Verbrauch = 0.0              // Aktueller Verbrauch (kWh)
+
+    // ───────────────────────────────────────────────────────────────────────────
+    // Konstanten Tarif berechnen (Referenzwert)
+    // ───────────────────────────────────────────────────────────────────────────
+    SummePreisKonstant = SummePreisKonstant + (PreisKonstant * Leistung)
+
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ALGORITHMUS 10: Einfachste Berechnung (kein Speicher, fester Dynpreis)
+    // ═══════════════════════════════════════════════════════════════════════════
+    IF Alg == 10 THEN
+        SummePreisDyn = SummePreisDyn + (pb[ID] * Leistung)
+        // pb[ID] = Bruttopreis je Stunde
+        // Leistung = aktuelle Leistungsaufnahme im Haus (meist konstant aus Maske)
+    END IF
+
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ALGORITHMUS >= 100: DynStrom MIT Speicher
+    // ═══════════════════════════════════════════════════════════════════════════
+    IF Alg >= 100 THEN
+
+        // ───────────────────────────────────────────────────────────────────────
+        // Lookahead: Suche günstige Preise in den nächsten 24 Stunden
+        // ───────────────────────────────────────────────────────────────────────
+        istSpeicherFastLeer = (Speicher <= 0.25 * Cap)
+        LH = Lookahead(24, ID, istSpeicherFastLeer, Alg, MinimalwarAKTIV, p0)
+
+        IF LH > 0 THEN
+            // Besseren Preis gefunden im Lookahead-Intervall
+            IF lhfound < LH OR lhfound == 0 THEN
+                lhfound = LH    // Bisher kein guter oder schlechterer Preis
+            END IF
+        ELSE
+            // Nichts gefunden
+        END IF
+
+        // ───────────────────────────────────────────────────────────────────────
+        // DynPlus-Preis ermitteln (nur laden bei KEINEM Aufschlag)
+        // ───────────────────────────────────────────────────────────────────────
+        DynPlusPreis = GetDynPlusPreis(p0[ID], pb[ID], limitProz, AufschlagAktiv, 
+                                        Alg, MinimalwarAKTIV, keinAufschlag, STDAufschlag)
+
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // ENTSCHEIDUNG: Günstiger Strom JETZT verfügbar?
+        // ═══════════════════════════════════════════════════════════════════════
+        IF lhfound == ID AND NOT AufschlagAktiv THEN
+
+            // *** JETZT gibt es günstigen Strom! ***
+            // Bei Minimum-Preis: Speicher MAXIMAL laden
+
+            ladeverbrauch = Cap - Speicher       // Lade Speicher voll (ggf. nur Teilverbrauch)
+            Verbrauch = ladeverbrauch + Leistung // Netzverbrauch = Ladeverbrauch + Hausverbrauch
+            Speicher = Speicher + ladeverbrauch  // Speicher aufladen
+            VerbrauchNetz = Verbrauch
+
+        ELSE
+
+            // ───────────────────────────────────────────────────────────────────
+            // MODELL HAUSSTEUERUNG: Normaler Verbrauch (kein Minimum-Preis)
+            // ───────────────────────────────────────────────────────────────────
+
+            IF Speicher >= Leistung THEN
+                // Speicher hat noch ausreichend Ladung
+                Verbrauch = Leistung
+                Speicher = Speicher - Verbrauch
+                VerbrauchNetz = 0
+
+            ELSE
+                // Speicher ist leer oder fast leer → Leistung aus Stromnetz holen
+
+                IF Speicher == 0 THEN
+                    // Speicher komplett leer
+                    Verbrauch = Leistung
+                    VerbrauchNetz = Verbrauch
+
+                ELSE
+                    // Noch etwas im Speicher, aber nicht ausreichend
+                    VerbrauchNetz = Leistung - Speicher
+                    Speicher = 0
+
+                END IF
+
+            END IF
+
+        END IF  // Ende Entscheidung günstiger Strom
+
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // ALGORITHMUS 100: Einfacher DynPreis-Modus (wie bei Tibber)
+        // ═══════════════════════════════════════════════════════════════════════
+        IF Alg == 100 THEN
+            SummePreisDyn = SummePreisDyn + (pb[ID] * VerbrauchNetz)
+
+            IF pb[ID] < 0 THEN
+                // Bei negativen Bruttopreisen verdient der DynKunde
+                InputDynKunde = InputDynKunde + (pb[ID] * VerbrauchNetz * -1)
+            END IF
+        END IF
+
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // ALGORITHMUS 110: DynPreis mit Speicher (Nettopreis-Basis)
+        // ═══════════════════════════════════════════════════════════════════════
+        IF Alg == 110 THEN
+            SummePreisDyn = SummePreisDyn + (p0[ID] * VerbrauchNetz)
+            SummeVerlust = SummeVerlust + ((pb[ID] - p0[ID]) * VerbrauchNetz)
+            // SummeVerlust = was würde der Staat verlieren
+
+            IF p0[ID] < 0 THEN
+                // Negativer Nettopreis (passiert bei viel Wind & Sonne)
+                InputDynKunde = InputDynKunde + (p0[ID] * VerbrauchNetz * -1)
+            END IF
+        END IF
+
+
+        // ───────────────────────────────────────────────────────────────────────
+        // Log-Ausgabe: Speicher leer
+        // ───────────────────────────────────────────────────────────────────────
+        sinfolog = ""
+
+        IF Speicher < 1 THEN
+            ladeinfo = ladeinfo + "--SPLEER--"
+            SpeicherLeerStunden = SpeicherLeerStunden + 1
+            sinfolog = sinfolog + "SpLEER!! "
+        END IF
+
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // ALGORITHMUS >= 200: DynPlus Spezialberechnungen (Abgabenverschiebung)
+        // ═══════════════════════════════════════════════════════════════════════
+        IF Alg >= 200 THEN
+
+            // ───────────────────────────────────────────────────────────────────
+            // Minimalperiode und Abgabenverschiebung verwalten
+            // ───────────────────────────────────────────────────────────────────
+            IF p0[ID] < 0.03 THEN
+                Minimalperiode = Minimalperiode + 1
+                // Zeit für Statistik hochzählen
+            ELSE
+                IF Minimalperiode > 0 THEN
+                    MinimalwarAKTIV = TRUE
+                    ladeinfo2 = " MinimalwarAKTIV"
+                    Minimalperiode = 0
+                END IF
+            END IF
+
+            IF SummeVerlust < -10 THEN
+                // Verluste erzeugt → In Abgabenverschiebung gehen
+                MinimalwarAKTIV = FALSE
+                ladeinfo2 = " PREISAUSGLEICH ->MinimalwarAKTIV=False "
+                STDAufschlagOffen = STDAufschlagOffen + 1
+            ELSE
+                MinimalwarAKTIV = TRUE
+            END IF
+
+            // ───────────────────────────────────────────────────────────────────
+            // Standard-Aufschlag berechnen
+            // ───────────────────────────────────────────────────────────────────
+            IF p0[ID] <= STDAufschlagBis AND MinimalwarAKTIV THEN
+                DynPreiSTD = pb[ID] + STDAufschlagWert
+                STDAufschlagBENUTZT = STDAufschlagBENUTZT + 1
+            ELSE
+                DynPreiSTD = pb[ID]
+            END IF
+
+            // ───────────────────────────────────────────────────────────────────
+            // Optimalen DynPlus-Preis ermitteln
+            // ───────────────────────────────────────────────────────────────────
+            DynPlusPreis = GetDynPlusPreis(p0[ID], pb[ID], limitProz, AufschlagAktiv, 
+                                            Alg, MinimalwarAKTIV, keinAufschlag, STDAufschlag)
+
+            SummePreisDyn = SummePreisDyn + (DynPlusPreis * VerbrauchNetz)
+            SummeVerlustDynPlusKunde = SummeVerlustDynPlusKunde + ((pb[ID] - DynPlusPreis) * VerbrauchNetz)
+
+            preisdiff = pb[ID] - DynPlusPreis
+            preisdiffSTD = pb[ID] - DynPreiSTD
+
+            SummeVerlust = SummeVerlust 
+                         + (preisdiff * Leistung * 1) 
+                         + (preisdiffSTD * Leistung * AnzahlNormalKundenproDynPlusKunde)
+
+            // ───────────────────────────────────────────────────────────────────
+            // Statistiken und Logging für DynPlus
+            // ───────────────────────────────────────────────────────────────────
+            IF AufschlagAktiv THEN
+                sinfolog = sinfolog + "A! "
+            END IF
+
+            IF DynPlusPreis < 0 THEN
+                InputDynKunde = InputDynKunde + (DynPlusPreis * VerbrauchNetz * -1)
+                ladeinfo2 = ladeinfo2 + " -NegLeistSumt=" + (DynPlusPreis * VerbrauchNetz * -1) 
+                                      + " RealGewinn=" + InputDynKunde
+            END IF
+
+            IF VerbrauchNetz > 0 THEN
+                IF AufschlagAktiv THEN
+                    // Statistiken für Laden mit Aufschlag
+                    ladeinfo2 = ladeinfo2 + "##AufsAktiv!!!"
+                    LADENbyAufschlagAktivDauer = LADENbyAufschlagAktivDauer + 1
+                    LADENbyAufschlagAktivWert = LADENbyAufschlagAktivWert + (DynPlusPreis * VerbrauchNetz)
+                    sinfolog = sinfolog + "Netzverbrauch mit Preisaufschlag! "
+                ELSE
+                    NOTLADENAufschlagAktivWert = NOTLADENAufschlagAktivWert + (DynPlusPreis * VerbrauchNetz)
+                    sinfolog = sinfolog + "Netzverbrauch! "
+                END IF
+
+                IF VerbrauchNetz > Leistung THEN
+                    sinfolog = sinfolog + " STARKER VERBRAUCH +++++++++"
+                END IF
+            END IF
+
+        END IF  // Ende Alg >= 200
+
+
+        // ───────────────────────────────────────────────────────────────────────
+        // Allgemeine Statistiken und Log-Info erstellen
+        // ───────────────────────────────────────────────────────────────────────
+        IF ladeverbrauch > 0 THEN
+            ladeinfo = ladeinfo + "++SPLADUNG++"
+        END IF
+
+        IF Alg >= 200 THEN
+            ladeinfo = ladeinfo + " SummeVerlust= " + SummeVerlust 
+                                + " preisdiff=" + preisdiff
+        END IF
+
+        // Status-Info für Debugging zusammenbauen
+        sinfo = "" + datum[ID] + " #Sp=" + Speicher 
+              + " €Sum=" + SummePreisDyn + "€ PN=" + p0[ID] 
+              + "€ PB=" + pb[ID] + "€ VBnetz=" + VerbrauchNetz + " kWh "
+        sinfo = sinfo + " SPL=" + ladeverbrauch + " kWh - LH=" + lhfound 
+              + "(P0=" + p0[lhfound] + ")" + ladeinfo + ladeinfo2
+
+        IF deblevel > 4 THEN
+            Debug.Print(sinfo)
+        END IF
+
+    END IF  // Ende Alg >= 100
+
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LOGFILE SCHREIBEN (wenn SaveLog aktiviert)
+    // ═══════════════════════════════════════════════════════════════════════════
+    IF SaveLog THEN
+        SimLogCounter = SimLogCounter + 1
+
+        SetSimlog("SimRunID", 1020)                          // TODO: dynamische ID
+        SetSimlog("SzenarioID", szid)                        // Szenario-ID aus Szenario
+        SetSimlog("DatumID", datum[ID])
+        SetSimlog("ID", ID)
+        SetSimlog("p0", p0[ID])
+        SetSimlog("pb", pb[ID])
+        SetSimlog("DynPlusPreis", DynPlusPreis)
+        SetSimlog("pbDynPreisDiff", pb[ID] - DynPlusPreis)
+        SetSimlog("AufschlagAktiv", AufschlagAktiv)
+        SetSimlog("VerbrauchNetz", VerbrauchNetz)
+
+        SummeVerbrauchNetz0 = SummeVerbrauchNetz0 + VerbrauchNetz
+        SetSimlog("SummeVerbrauchNetz", SummeVerbrauchNetz0)
+
+        SummeDynPlusPreis0 = SummeDynPlusPreis0 + DynPlusPreis
+        SetSimlog("SummeDynPlusPreis", SummeDynPlusPreis0)
+
+        SetSimlog("Speicher", Speicher)
+        SetSimlog("LADENbyAufschlagAktivWert", LADENbyAufschlagAktivWert)
+        SetSimlog("NOTLADENAufschlagAktivWert", NOTLADENAufschlagAktivWert)
+        SetSimlog("SummeVerlust", SummeVerlust)
+    END IF
+
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    // ZWISCHENAUSGABEN / ANIMATIONEN (periodisch oder am Ende)
+    // ═══════════════════════════════════════════════════════════════════════════
+    IF counter == 0 OR ID == anzahl THEN
+
+        IF ID == anzahl THEN
+            Applog("Saving results ...")    // Letzter Schritt vor Simulationsende
+        END IF
+
+        MePartSET("DatumEnde", datum[ID - 1])
+        MePartSET("r1", SummePreisKonstant)
+        MePartSET("r2", SummePreisDyn)
+        MePartSET("r3", SummePreisKonstant - SummePreisDyn)
+        MePartSET("r5", SummeVerlustDynPlusKunde)
+        MePartSET("r6", SummeVerlust)
+
+        counter = Countervorgabe
+    END IF
+
+    counter = counter - 1
+
+END FOR  // Ende Hauptschleife über alle Stunden
