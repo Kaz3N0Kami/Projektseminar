@@ -241,7 +241,7 @@ Public Class DynPlus100
                 .OrderByDescending(Function(kvp) kvp.Key) _
                 .FirstOrDefault()
 
-                If match.Key > 0 Then
+                If match.Value > 0 Then
                     aufschlag = match.Value
                 End If
             End If
