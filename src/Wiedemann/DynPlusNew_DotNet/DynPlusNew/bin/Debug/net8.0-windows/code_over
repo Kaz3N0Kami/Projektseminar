@@ -1,0 +1,326 @@
+
+
+        If IsNull(Me!sp8) Then STDAufschlagWert = 0 Else STDAufschlagWert = Me!sp8 :         Rem Hole den Standardaufschlag aus Eingabefeld SP8
+
+        DynPlusModus = False REM Flag zum Testen der DynPlus-Optimierungen
+        If Alg >= 200 Then DynPlusModus = True :         Rem für alle Algorithmen >= 200 Aktiviere DynPlusMode in den Berechnungen
+
+        Exit Sub
+
+        REM init databse access
+        Dim db As Database, rec As Recordset
+   Set db = CurrentDb
+   
+   REM init Simlog (detailied sorage of calculated data for each hour !)
+   Dim reclog As Recordset, SaveLog As Boolean, sinfolog As String, STDAufschlagBis As Single
+   Set reclog = db.OpenRecordset("simlog")
+   
+   SaveLog = Me!SaveLog REM Hole SimLog-Statsu
+        If SaveLog Then
+            On Error GoTo Err_Execute
+            db.Execute("DELETE * FROM simlog;") REM falls aktiv, lösche letztes Log !
+            On Error GoTo 0
+
+        End If
+
+        Alg = Me!Algorithmus REM hole Algorithmus-Typ aus Maske
+
+        Countervorgabe = 1200
+        Dim counter As Long, Cap As Single
+        REM hole alle Vorgabewerte aus der Maske - unterschiedlich je nach Alg
+        Leistung = Me!sp3
+        If IsNull(Me!sp7) Then STDAufschlagBis = 0 Else STDAufschlagBis = Me!sp7
+        PreisProKWh = Me!sp1
+        SummePreisKonstant = 0
+        SummePreisDyn = 0
+        Me!DatumStart = datum(0)
+DoEvents: REM (Windows Funktion zum Erlauben der Anzeige von Ausgabewerten ...)
+        Me!r4 = 0 REM delta value init (show on form)
+        counter = Countervorgabe
+        If Alg > 10 Then
+            REM mit Speicher nur auf Börsenstrompreis
+
+            Cap = Me!sp5 REM Speicherkapzität aus Maske
+
+            If Alg >= 200 Then AnzahlNormalKundenproDynPlusKunde = Me!sp6 : limitProz = Me!sp4 :             Rem Absenkungsgrenze
+        End If
+
+        Dim PreisKonstant As Double, ladeverbrauch As Single
+        Dim ladeinfo As String, ladeinfo2 As String, sinfo As String, SpeicherStatus$, LADENbyAufschlagAktivWert As Double, NOTLADENAufschlagAktivWert As Double
+        Dim LH As Long
+        Dim Verbrauch As Single
+        Dim SummeVerlust As Single, DynPlusPreis As Currency
+        Dim Minimalperiode As Long, MinimalwarAKTIV As Boolean
+        Dim preisdiff As Double, preisdiffSTD As Double, DynPreiSTD As Currency
+
+        REM hole alle Vorgabewerte aus de rMaeke - unterschiedlich je nach Alg
+        PreisKonstant = Me!sp1  REM Normaler Strompreis (ca. 0,35 € pro KWh als Vergleichswerte für die Einsparpotentiale )
+        LADENbyAufschlagAktivWert = 0
+        NOTLADENAufschlagAktivWert = 0
+
+        For ID = 1 To anzahl REM Zähle ALLE vorhandenen Stunden durch (by Default vom 1.1.2023 bis kurz vor Ende 2024 )
+
+
+            If datum(ID) = 2023010113 Then
+                Debug.Print "STOP"
+
+    End If
+
+            SummePreisKonstant = SummePreisKonstant + PreisKonstant * Leistung  REM Strompreis bei konstanten Tarif
+            ladeverbrauch = 0  REM aktueller Verbrauch für Speicehrladeb
+            ladeinfo = "" : ladeinfo2 = "" : SpeicherStatus = "" REM Log-Infos
+
+
+            If Alg = 10 Then
+                REM simplest calculation - no storage
+                SummePreisDyn = SummePreisDyn + pb(ID) * Leistung
+                REM  pb(..) Bruttopreis je stunde /  Leistung - aktuelle Leistungsaufnahme im Haus (meist konstant aus Maske )
+            End If
+
+            REM DynStrom with storage =========================================================================================================
+            If Alg >= 100 Then
+                REM DynStrom :  ermittle mögliches Zeiten günstigen Stroms -> mit Lookup für 24 h (Par1)
+                REM please check follwoing ffunction:  it looks for "good" prices the next 24 hours !
+                LH = lookahead(24, ID, Speicher <= 0.25 * Cap, Alg, MinimalwarAKTIV)
+                If LH > 0 Then
+                    REM besseren Preis gefundenn in lookahead-Intervall
+                    If lhfound < LH Or lhfound = 0 Then
+                        lhfound = LH REM bisher kein guter oder schlechterer Preis
+                    End If
+                Else
+                    REM nix gefunden
+                End If
+
+                REM neu - nur laden bei KEINEM Aufschlag !
+                DynPlusPreis = getDynPlusPreis(p0(ID), pb(ID), limitProz, AufschlagAktiv, Alg, MinimalwarAKTIV, keinAufschlag, STDAufschlag)
+
+                REM genereller Checck
+                If lhfound = ID And Not AufschlagAktiv Then
+                    REM JETZT gibt es günstigen Strom !
+                    REM bei Minum Preis Maximal JETZT Speicher laden
+                    REM jetzt Speicher laden !!!
+                    ladeverbrauch = Cap - Speicher  REM Lade Speichet voll (wenn fast voll, nur noch Teilverbrauch)
+                    Verbrauch = ladeverbrauch + Leistung REM Netzverbrauch = Ladeverbrauch + Hausverbrauch
+                    Speicher = Speicher + ladeverbrauch   REM Speicher aufladen
+                    VerbrauchNetz = Verbrauch
+
+                Else
+
+                    ' Model of house control unit ############################################################
+
+                    REM kein Minimum - normaler Verbrauch
+                    REM verbrauch = Leistung
+                    If Speicher >= Leistung Then
+                        REM Speicher hat noch Ladung
+                        Verbrauch = Leistung
+                        Speicher = Speicher - Verbrauch
+                        VerbrauchNetz = 0
+                    Else
+                        REM Speicher ist leer oder fast leer  ==>  Leistung aus Stromnetz holen !
+                        If Speicher = 0 Then
+                            Verbrauch = Leistung
+                            VerbrauchNetz = Verbrauch
+                        Else
+                            REM  es ist noch etwas da, nicht ganz ausreecihend für eine Abdekung
+                            VerbrauchNetz = Leistung - Speicher
+                            Speicher = 0
+
+                        End If
+
+                    End If
+
+                End If REM ==========================================================================================
+
+                If Alg = 100 Then
+                    REM einfacher DynPreos-Modus (wie bei Tibber)  - Standardverbrauch
+                    SummePreisDyn = SummePreisDyn + pb(ID) * VerbrauchNetz
+                    If pb(ID) < 0 Then
+                        REM bei negativen Bruttopreiesen verdient der DynKunde
+                        InputDynKunde = InputDynKunde + pb(ID) * VerbrauchNetz * -1
+
+                    End If
+                End If
+                If Alg = 110 Then
+                    REM DynPreis mit Speicher
+                    SummePreisDyn = SummePreisDyn + p0(ID) * VerbrauchNetz
+                    SummeVerlust = SummeVerlust + (pb(ID) - p0(ID)) * VerbrauchNetz REM was würde der Staat verlieren
+                    If p0(ID) < 0 Then
+                        REM negativer Nettopreis (passiert bei viel Wind & Sonne)
+                        InputDynKunde = InputDynKunde + p0(ID) * VerbrauchNetz * -1
+                    End If
+                End If
+                sinfolog = ""
+
+                If Speicher < 1 Then
+                    REM speicher ist leer -> log-Ausgaben
+                    ladeinfo = ladeinfo & "--SPLEER--" : SpeicherLeerStunden% = SpeicherLeerStunden% + 1
+                    sinfolog = sinfolog & "SpLEER!! "
+                End If
+
+                REM DynPlus -Spezialberechungen ##################################################################################
+
+                If Alg >= 200 Then
+                    REM DynPlus Abgabenverschiebung
+                    If datum(ID) = 2023010118 Then
+                        Debug.Print "Break?" REM nur für testzwecke
+               End If
+                    If p0(ID) < 0.03 Then
+                        Minimalperiode = Minimalperiode + 1 REM für die spezielle Abgabenverschiebung - Zeit hochzählen für Statistisk
+                    Else
+                        If Minimalperiode > 0 Then MinimalwarAKTIV = True : ladeinfo2 = " MinimalwarAKTIV" : Minimalperiode = 0 :                         Rem Infoausgabe
+                    End If
+                    If SummeVerlust < -10 Then
+                        REM Verluste erzeugt ->  In Abgabenverschiebung gehen
+                        MinimalwarAKTIV = False : ladeinfo2 = " PREISAUSGLEICH ->MinimalwarAKTIV=False "
+                        STDAufschlagOffen = STDAufschlagOffen + 1
+                    Else
+                        MinimalwarAKTIV = True
+                    End If
+
+                    If p0(ID) <= STDAufschlagBis And MinimalwarAKTIV Then
+                        DynPreiSTD = pb(ID) + STDAufschlagWert
+                        STDAufschlagBENUTZT = STDAufschlagBENUTZT + 1
+                    Else
+                        DynPreiSTD = pb(ID)
+                    End If
+
+                    REM ermittle optimalen DynPlus-Preis
+                    DynPlusPreis = getDynPlusPreis(p0(ID), pb(ID), limitProz, AufschlagAktiv, Alg, MinimalwarAKTIV, keinAufschlag, STDAufschlag)
+                    SummePreisDyn = SummePreisDyn + DynPlusPreis * VerbrauchNetz
+                    SummeVerlustDynPlusKunde = SummeVerlustDynPlusKunde + (pb(ID) - DynPlusPreis) * VerbrauchNetz
+                    preisdiff = pb(ID) - DynPlusPreis
+                    preisdiffSTD = pb(ID) - DynPreiSTD
+                    SummeVerlust = SummeVerlust + preisdiff * Leistung * 1 + preisdiffSTD * Leistung * AnzahlNormalKundenproDynPlusKunde
+
+                    If AufschlagAktiv Then sinfolog = sinfolog & "A! "
+                    If DynPlusPreis < 0 Then
+                        InputDynKunde = InputDynKunde + DynPlusPreis * VerbrauchNetz * -1
+                        ladeinfo2 = ladeinfo2 & " -NegLeistSumt=" & DynPlusPreis * VerbrauchNetz * -1 & " RealGewinn=" & InputDynKunde
+                    End If
+                    If VerbrauchNetz > 0 Then
+                        If AufschlagAktiv Then
+                            REM erzeuge Statistiken
+                            ladeinfo2 = ladeinfo2 & "##AufsAktiv!!!"
+                            LADENbyAufschlagAktivDauer = LADENbyAufschlagAktivDauer + 1
+                            LADENbyAufschlagAktivWert = LADENbyAufschlagAktivWert + DynPlusPreis * VerbrauchNetz
+                            sinfolog = sinfolog & "Netzverbrauch mit Preisaufschlag! "
+                        Else
+                            NOTLADENAufschlagAktivWert = NOTLADENAufschlagAktivWert + DynPlusPreis * VerbrauchNetz
+
+                            sinfolog = sinfolog & "Netzverbrauch! "
+
+                        End If
+                        If VerbrauchNetz > Leistung Then sinfolog = sinfolog & " STARKER VERBRAUCH +++++++++"
+                    End If
+                End If
+
+                REM erzeuge Statistiken
+                If ladeverbrauch > 0 Then ladeinfo = ladeinfo & "++SPLADUNG++"
+
+                If Alg >= 200 Then
+                    ladeinfo = ladeinfo + " SummeVerlust= " & SummeVerlust & " preisdiff=" & preisdiff
+                End If
+
+                REM erzeuge Statistiken
+                REM lang sinfo = "id=" & ID & " #Speicher=" & Speicher & " €SumPreis=" & SummePreisDyn & "€ BPreis=" & p0(ID) & "€ Brutto=" & pb(ID) & "€  Verbrauch=" & Verbrauch & " kWh "
+                REM sinfo = sinfo & " Speicherladung=" & ladeverbrauch & " kWh -  Lookahead=" & lhfound & "(P0=" & p0(lhfound) & ")" & ladeinfo
+                sinfo = "" & datum(ID) & " #Sp=" & Speicher & " €Sum=" & SummePreisDyn & "€ PN=" & p0(ID) & "€ PB=" & pb(ID) & "€ VBnetz=" & VerbrauchNetz & " kWh "
+                sinfo = sinfo & " SPL=" & ladeverbrauch & " kWh - LH=" & lhfound & "(P0=" & p0(lhfound) & ")" & ladeinfo & ladeinfo2
+                If Me!debugg = True Then
+                    Debug.Print sinfo
+        End If
+
+                REM Ende modus = 20 or 30
+            End If
+
+            If SaveLog Then
+                REM SCHREIBE  logfile
+                reclog.AddNew
+                reclog!SimRunID = 1020   REM to be changed to dynamci ID
+                reclog!SzenarioID = szid REM NEW 2025 TW set SzenrioID from Szenario
+                reclog!DatumID = datum(ID)
+                reclog!ID = ID
+                reclog!p0 = p0(ID)
+                reclog!pb = pb(ID)
+                reclog!DynPlusPreis = DynPlusPreis
+                reclog!pbDynPreisDiff = pb(ID) - DynPlusPreis
+                reclog!AufschlagAktiv = AufschlagAktiv
+                reclog!VerbrauchNetz = VerbrauchNetz
+
+                SummeVerbrauchNetz0 = SummeVerbrauchNetz0 + VerbrauchNetz
+                reclog!SummeVerbrauchNetz = SummeVerbrauchNetz0
+
+
+
+                SummeDynPlusPreis0 = SummeDynPlusPreis0 + DynPlusPreis
+                reclog!SummeDynPlusPreis = SummeDynPlusPreis0
+
+                reclog!Speicher = Speicher
+                reclog!LADENbyAufschlagAktivWert = LADENbyAufschlagAktivWert
+                reclog!NOTLADENAufschlagAktivWert = NOTLADENAufschlagAktivWert
+                reclog!SummeVerlust = SummeVerlust
+                reclog!sinfo = sinfolog
+                reclog.Update
+
+            End If
+
+            REM Zwischenausgaben // Animationen
+            If counter = 0 Or ID = anzahl Then
+                Me!DatumEnde = datum(ID)
+                Me!r1 = SummePreisKonstant
+                Me!r2 = SummePreisDyn
+                Me!r3 = SummePreisKonstant - SummePreisDyn
+                Me!r5 = SummeVerlustDynPlusKunde
+                Me!r6 = SummeVerlust
+
+                DoEvents
+                counter = Countervorgabe
+            End If
+            counter = counter - 1
+        Next ID
+
+        Dim dauerTage As LongLong, dauerJahre As Single, resinfo$
+
+        Me!DatumEnde = datum(anzahl - 1)
+        Me!DatumDauerStunden = anzahl
+        dauerTage = anzahl / 24
+        Me!DatumDauerTage = dauerTage
+        dauerJahre = dauerTage / 365
+        Me!DatumDauerJahre = dauerJahre
+        REM Normierung der Eergebnisse (speziell hir Einpsarungen bzw. DynPlus-Effekt AUF EIN Kalenderjahr)
+        Me!r4 = (SummePreisKonstant - SummePreisDyn) / dauerJahre
+        resinfo = ""
+
+        REM erzeuge Statistiken
+        If Alg >= 100 Then
+            resinfo = "SpeicherLeer=" & SpeicherLeerStunden% & " h (" & Int(SpeicherLeerStunden% / 24) & " Tage)=" & Int(10.0# * SpeicherLeerStunden% / anzahl * 10) & "%"
+
+            If Alg >= 200 And Alg < 20 Then
+                resinfo = resinfo & crlf & "LADENbyAufschlagAktivDauer=" & LADENbyAufschlagAktivDauer & "h =" & Int(10 * LADENbyAufschlagAktivDauer / anzahl * 10) & "%"
+                resinfo = resinfo & crlf & "LADENbyAufschlagAktivWert=" & Int(LADENbyAufschlagAktivWert) & " € = " & Int(10 * LADENbyAufschlagAktivWert / SummePreisDyn * 10) & "%"
+                resinfo = resinfo & crlf & "NOTLADENAufschlagAktivWert=" & Int(NOTLADENAufschlagAktivWert) & " €" & " (Diff=" & (NOTLADENAufschlagAktivWert + LADENbyAufschlagAktivWert - SummePreisDyn) & ")"
+            End If
+            If Alg >= 220 And Alg < 230 Then
+                Dim STDAufschlaggesamt As Long
+                STDAufschlaggesamt = STDAufschlagBENUTZT + STDAufschlagOffen
+                resinfo = resinfo & crlf & " STDAufschlagBENUTZT=" & STDAufschlagBENUTZT & " (" & Round(1.0# * STDAufschlagBENUTZT / STDAufschlaggesamt * 100) & "%)"
+                resinfo = resinfo & crlf & " STDAufschlagOffen=" & STDAufschlagOffen & " (" & Round(1.0# * STDAufschlagOffen / STDAufschlaggesamt * 100.0#) & "%)"
+            End If
+
+
+            REM Me!ResultatText = resinfo
+            Me!r5 = SummeVerlustDynPlusKunde
+            Me!r6 = SummeVerlust
+            Me!r7 = InputDynKunde
+            Me!r8 = SpeicherLeerStunden%
+            Me!r9 = STDAufschlagBENUTZT / STDAufschlaggesamt * 100
+
+        End If
+        REM Me!ResultatText = resinfo
+
+        Exit Sub
+
+Err_Execute:
+
+        MsgBox Error(Err)
+   
