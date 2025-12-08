@@ -385,7 +385,7 @@ Public Class DynPlus100
         Dim flagconvszid As Long = False
         flagconvszid = Long.TryParse(szidtext, szid)
         If Not flagconvszid Then Applog("SzenarioID not recognized (no conversion possible to long value)", True, "ERROR")
-        If szid <> 1 And szid <> 7 Then
+        If szid <> 1 And szid <> 7 And szid <> 8 Then
             Applog("SzenarioID actually only 1 or 7 !!!", True, "ERROR")
             Exit Sub
 

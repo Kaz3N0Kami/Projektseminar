@@ -37,18 +37,20 @@ Partial Class DynPlus100
         ' 
         Start_Simulation.Font = New Font("Segoe UI", 13.8F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         Start_Simulation.ForeColor = Color.FromArgb(CByte(0), CByte(192), CByte(0))
-        Start_Simulation.Location = New Point(914, 73)
+        Start_Simulation.Location = New Point(800, 55)
+        Start_Simulation.Margin = New Padding(3, 2, 3, 2)
         Start_Simulation.Name = "Start_Simulation"
-        Start_Simulation.Size = New Size(346, 45)
+        Start_Simulation.Size = New Size(303, 34)
         Start_Simulation.TabIndex = 0
         Start_Simulation.Text = "Starte Simulation"
         Start_Simulation.UseVisualStyleBackColor = True
         ' 
         ' log
         ' 
-        log.Location = New Point(30, 126)
+        log.Location = New Point(26, 94)
+        log.Margin = New Padding(3, 2, 3, 2)
         log.Name = "log"
-        log.Size = New Size(1230, 643)
+        log.Size = New Size(1077, 483)
         log.TabIndex = 1
         log.Text = ""
         ' 
@@ -56,9 +58,9 @@ Partial Class DynPlus100
         ' 
         Label1.AutoSize = True
         Label1.Font = New Font("Segoe UI", 19.8000011F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
-        Label1.Location = New Point(30, 18)
+        Label1.Location = New Point(26, 14)
         Label1.Name = "Label1"
-        Label1.Size = New Size(335, 46)
+        Label1.Size = New Size(266, 37)
         Label1.TabIndex = 2
         Label1.Text = "DynPlus .NET V1.00"
         ' 
@@ -66,10 +68,11 @@ Partial Class DynPlus100
         ' 
         Szenario.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         Szenario.FormattingEnabled = True
-        Szenario.Items.AddRange(New Object() {"0", "1", "7"})
-        Szenario.Location = New Point(146, 75)
+        Szenario.Items.AddRange(New Object() {"0", "1", "7", "8"})
+        Szenario.Location = New Point(128, 56)
+        Szenario.Margin = New Padding(3, 2, 3, 2)
         Szenario.Name = "Szenario"
-        Szenario.Size = New Size(63, 36)
+        Szenario.Size = New Size(56, 29)
         Szenario.TabIndex = 3
         Szenario.Text = "1"
         ' 
@@ -77,9 +80,9 @@ Partial Class DynPlus100
         ' 
         Label3.AutoSize = True
         Label3.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
-        Label3.Location = New Point(30, 82)
+        Label3.Location = New Point(26, 62)
         Label3.Name = "Label3"
-        Label3.Size = New Size(93, 28)
+        Label3.Size = New Size(76, 21)
         Label3.TabIndex = 5
         Label3.Text = "Szenario"
         ' 
@@ -87,9 +90,9 @@ Partial Class DynPlus100
         ' 
         DebuglevelForm.AutoSize = True
         DebuglevelForm.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
-        DebuglevelForm.Location = New Point(246, 78)
+        DebuglevelForm.Location = New Point(215, 58)
         DebuglevelForm.Name = "DebuglevelForm"
-        DebuglevelForm.Size = New Size(119, 28)
+        DebuglevelForm.Size = New Size(98, 21)
         DebuglevelForm.TabIndex = 8
         DebuglevelForm.Text = "Debuglevel"
         ' 
@@ -98,18 +101,20 @@ Partial Class DynPlus100
         Debuglevel.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         Debuglevel.FormattingEnabled = True
         Debuglevel.Items.AddRange(New Object() {"1", "2", "3", "4", "5"})
-        Debuglevel.Location = New Point(409, 75)
+        Debuglevel.Location = New Point(358, 56)
+        Debuglevel.Margin = New Padding(3, 2, 3, 2)
         Debuglevel.Name = "Debuglevel"
-        Debuglevel.Size = New Size(63, 36)
+        Debuglevel.Size = New Size(56, 29)
         Debuglevel.TabIndex = 7
         Debuglevel.Text = "3"
         ' 
         ' SaveLog_GUI
         ' 
         SaveLog_GUI.AutoSize = True
-        SaveLog_GUI.Location = New Point(552, 76)
+        SaveLog_GUI.Location = New Point(483, 57)
+        SaveLog_GUI.Margin = New Padding(3, 2, 3, 2)
         SaveLog_GUI.Name = "SaveLog_GUI"
-        SaveLog_GUI.Size = New Size(87, 24)
+        SaveLog_GUI.Size = New Size(70, 19)
         SaveLog_GUI.TabIndex = 9
         SaveLog_GUI.Text = "SaveLog"
         SaveLog_GUI.UseVisualStyleBackColor = True
@@ -118,18 +123,19 @@ Partial Class DynPlus100
         ' 
         ClearScreen.Font = New Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         ClearScreen.ForeColor = Color.FromArgb(CByte(64), CByte(0), CByte(0))
-        ClearScreen.Location = New Point(671, 75)
+        ClearScreen.Location = New Point(587, 56)
+        ClearScreen.Margin = New Padding(3, 2, 3, 2)
         ClearScreen.Name = "ClearScreen"
-        ClearScreen.Size = New Size(145, 45)
+        ClearScreen.Size = New Size(127, 34)
         ClearScreen.TabIndex = 10
         ClearScreen.Text = "Clear Screen"
         ClearScreen.UseVisualStyleBackColor = True
         ' 
         ' DynPlus100
         ' 
-        AutoScaleDimensions = New SizeF(8F, 20F)
+        AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
-        ClientSize = New Size(1308, 781)
+        ClientSize = New Size(1144, 586)
         Controls.Add(ClearScreen)
         Controls.Add(SaveLog_GUI)
         Controls.Add(DebuglevelForm)
@@ -139,6 +145,7 @@ Partial Class DynPlus100
         Controls.Add(Label1)
         Controls.Add(log)
         Controls.Add(Start_Simulation)
+        Margin = New Padding(3, 2, 3, 2)
         Name = "DynPlus100"
         Text = "DynPlusNet_v100"
         ResumeLayout(False)
