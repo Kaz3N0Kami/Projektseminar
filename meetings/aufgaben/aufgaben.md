@@ -7,3 +7,14 @@
 ## Wenn mit KI gearbeitet:
 - Link zu Chat in Excel-Tabelle schreiben
 - Bewertung zum Ergebnis der KI in kurzen Stichpunkten festhalten
+
+-- 08.12.2025--
+
+- neues Input-/Auswahlfeld in GUI anlegen für Auswahl der „Aufschlag“.csv
+- Form1.vb von Vincent zu Python übersetzen(von Hand und/oder KI)
+- 200er Algo direkt nach Python übersetzen(von Hand und/oder KI)
+- KI testen ob sie Unterschiede in den Code-Zeilen findet:
+	- Code absichtlich verändern und Unterschiede suchen lassen
+	- Ergebnisse/Chats/Promts speichern
+  - Code der von KI erstellt wurde mit Ergebnissen des Original-Codes vergleichen
+- Auswertung aller Ergebnisse grafisch in Excel einbauen 
