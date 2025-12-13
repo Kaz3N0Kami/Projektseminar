@@ -233,7 +233,7 @@ Public Class DynPlus100
                 REM weite Verschiebung == nicht mehr relevant - war nicht optimal !!!
                 REM == nicht mehr relevant - war nicht optimal !!!
 
-                Dim dict = LoadAufschlagDict("aufschlag.csv")
+                Dim dict = LoadAufschlagDict($"aufschlag{Aufschlagstabelle.Text}.csv")
 
                 ' Alle p0_min suchen die <= p0 sind → größtes nehmen
                 Dim match = dict _

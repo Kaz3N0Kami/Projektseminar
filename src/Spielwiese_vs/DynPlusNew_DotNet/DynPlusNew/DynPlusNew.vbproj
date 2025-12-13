@@ -28,10 +28,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="aufschlag3.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="aufschlag2.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="aufschlag.csv">
+    <None Update="aufschlag1.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="My Project\Application.myapp">

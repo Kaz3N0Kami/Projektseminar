@@ -31,6 +31,8 @@ Partial Class DynPlus100
         Debuglevel = New ComboBox()
         SaveLog_GUI = New CheckBox()
         ClearScreen = New Button()
+        Label2 = New Label()
+        Aufschlagstabelle = New ComboBox()
         SuspendLayout()
         ' 
         ' Start_Simulation
@@ -69,7 +71,7 @@ Partial Class DynPlus100
         Szenario.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         Szenario.FormattingEnabled = True
         Szenario.Items.AddRange(New Object() {"0", "1", "7", "8"})
-        Szenario.Location = New Point(128, 56)
+        Szenario.Location = New Point(108, 57)
         Szenario.Margin = New Padding(3, 2, 3, 2)
         Szenario.Name = "Szenario"
         Szenario.Size = New Size(56, 29)
@@ -90,7 +92,7 @@ Partial Class DynPlus100
         ' 
         DebuglevelForm.AutoSize = True
         DebuglevelForm.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
-        DebuglevelForm.Location = New Point(215, 58)
+        DebuglevelForm.Location = New Point(170, 58)
         DebuglevelForm.Name = "DebuglevelForm"
         DebuglevelForm.Size = New Size(98, 21)
         DebuglevelForm.TabIndex = 8
@@ -101,7 +103,7 @@ Partial Class DynPlus100
         Debuglevel.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         Debuglevel.FormattingEnabled = True
         Debuglevel.Items.AddRange(New Object() {"1", "2", "3", "4", "5"})
-        Debuglevel.Location = New Point(358, 56)
+        Debuglevel.Location = New Point(274, 57)
         Debuglevel.Margin = New Padding(3, 2, 3, 2)
         Debuglevel.Name = "Debuglevel"
         Debuglevel.Size = New Size(56, 29)
@@ -111,7 +113,7 @@ Partial Class DynPlus100
         ' SaveLog_GUI
         ' 
         SaveLog_GUI.AutoSize = True
-        SaveLog_GUI.Location = New Point(483, 57)
+        SaveLog_GUI.Location = New Point(336, 57)
         SaveLog_GUI.Margin = New Padding(3, 2, 3, 2)
         SaveLog_GUI.Name = "SaveLog_GUI"
         SaveLog_GUI.Size = New Size(70, 19)
@@ -123,7 +125,7 @@ Partial Class DynPlus100
         ' 
         ClearScreen.Font = New Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
         ClearScreen.ForeColor = Color.FromArgb(CByte(64), CByte(0), CByte(0))
-        ClearScreen.Location = New Point(587, 56)
+        ClearScreen.Location = New Point(412, 56)
         ClearScreen.Margin = New Padding(3, 2, 3, 2)
         ClearScreen.Name = "ClearScreen"
         ClearScreen.Size = New Size(127, 34)
@@ -131,11 +133,35 @@ Partial Class DynPlus100
         ClearScreen.Text = "Clear Screen"
         ClearScreen.UseVisualStyleBackColor = True
         ' 
+        ' Label2
+        ' 
+        Label2.AutoSize = True
+        Label2.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        Label2.Location = New Point(545, 60)
+        Label2.Name = "Label2"
+        Label2.Size = New Size(146, 21)
+        Label2.TabIndex = 12
+        Label2.Text = "Aufschalgstabelle"
+        ' 
+        ' Aufschlagstabelle
+        ' 
+        Aufschlagstabelle.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        Aufschlagstabelle.FormattingEnabled = True
+        Aufschlagstabelle.Items.AddRange(New Object() {"1", "2", "3"})
+        Aufschlagstabelle.Location = New Point(697, 57)
+        Aufschlagstabelle.Margin = New Padding(3, 2, 3, 2)
+        Aufschlagstabelle.Name = "Aufschlagstabelle"
+        Aufschlagstabelle.Size = New Size(56, 29)
+        Aufschlagstabelle.TabIndex = 11
+        Aufschlagstabelle.Text = "1"
+        ' 
         ' DynPlus100
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1144, 586)
+        Controls.Add(Label2)
+        Controls.Add(Aufschlagstabelle)
         Controls.Add(ClearScreen)
         Controls.Add(SaveLog_GUI)
         Controls.Add(DebuglevelForm)
@@ -161,5 +187,7 @@ Partial Class DynPlus100
     Friend WithEvents Debuglevel As ComboBox
     Friend WithEvents SaveLog_GUI As CheckBox
     Friend WithEvents ClearScreen As Button
+    Friend WithEvents Label2 As Label
+    Friend WithEvents Aufschlagstabelle As ComboBox
 
 End Class
