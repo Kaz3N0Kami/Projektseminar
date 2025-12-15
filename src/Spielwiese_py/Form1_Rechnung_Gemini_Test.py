@@ -87,7 +87,7 @@ class DynPlus100:
 
     def export_to_csv_meparts(self, filename):
         try:
-            with open(filename, 'w', encoding='utf-8') as f:
+            with open(filename, 'w', encoding='uft-8') as f:
                 # Zeile 1: Namen
                 f.write(";".join(self.meparts_names) + "\n")
                 # Zeile 2: Werte
@@ -98,7 +98,7 @@ class DynPlus100:
 
     def export_to_csv_simlog(self, filename):
         try:
-            with open(filename, 'w', encoding='utf-8') as f:
+            with open(filename, 'w', encoding='uft-8') as f:
                 # Header
                 # Filtere leere Namen raus
                 valid_names = [n for n in self.simlog_names if n]
@@ -215,7 +215,7 @@ class DynPlus100:
             self.app_log(f"FILE NOT FOUND: {filename_szenario}", True, "ERROR")
             return
 
-        with open(filename_szenario, 'r', encoding='utf-8') as f:
+        with open(filename_szenario, 'r', encoding='uft-8') as f:
             szenario_lines = f.readlines()
         
         self.app_log(f"Szenario {szenario_id} loaded with linecount = {len(szenario_lines)}")
@@ -229,7 +229,7 @@ class DynPlus100:
         # Load SimLog Structure
         filename_simlog_struct = os.path.join("data", "sim_logdata_reference.csv")
         if os.path.exists(filename_simlog_struct):
-            with open(filename_simlog_struct, 'r', encoding='utf-8') as f:
+            with open(filename_simlog_struct, 'r', encoding='uft-8') as f:
                 line = f.readline()
                 self.simlog_names = line.strip().split(';')
             self.app_log(f"Simlog Structure loaded, columns: {len(self.simlog_names)}")
@@ -246,7 +246,7 @@ class DynPlus100:
                 self.app_log("CRITICAL: Preisdaten_Tab1.csv not found!", True, "ERROR")
                 return
 
-            with open(filename_price_data, 'r', encoding='utf-8') as f:
+            with open(filename_price_data, 'r', encoding='uft-8') as f:
                 lines = f.readlines()
             
             linecount = 0
