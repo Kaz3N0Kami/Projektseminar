@@ -17,4 +17,15 @@
 	- Code absichtlich verändern und Unterschiede suchen lassen
 	- Ergebnisse/Chats/Promts speichern
   - Code der von KI erstellt wurde mit Ergebnissen des Original-Codes vergleichen
-- Auswertung aller Ergebnisse grafisch in Excel einbauen 
+- Auswertung aller Ergebnisse grafisch in Excel einbauen
+
+-- 15.12.2025--
+
+- KI testen ob sie Unterschiede in den Code-Zeilen findet:
+	- Code absichtlich verändern und Unterschiede suchen lassen
+	- Ergebnisse/Chats/Promts speichern
+	- Code der von KI erstellt wurde mit Ergebnissen des Original-Codes vergleichen
+- erstes Grundgerüst für Präsentation erstellen
+- in Aufschlag_3.csv den statischen Aufschlag auf max. 0,15€ reduzieren
+- Funktionen für Export usw. anpassen
+- Auswertungsexcel erstellen mitsamt grafischer Darstellungen
