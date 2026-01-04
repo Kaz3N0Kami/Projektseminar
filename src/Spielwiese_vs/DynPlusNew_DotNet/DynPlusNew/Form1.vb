@@ -860,7 +860,7 @@ Public Class DynPlus100
 
         Dim filenameSzenarioExport As String
         filenameSzenarioExport = filenameSzenario.Substring(0, Len(filenameSzenario) - 4)
-        filenameSzenarioExport = filenameSzenarioExport & "_Export.csv"
+        filenameSzenarioExport = filenameSzenarioExport & $"_aufschlag_{Aufschlagstabelle.Text}" & "_Export.csv"
         Export_to_CSV_meparts(filenameSzenarioExport)
         Applog("Results exported to " & filenameSzenarioExport)
         If SaveLog Then
