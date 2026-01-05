@@ -29,3 +29,8 @@
 - in Aufschlag_3.csv den statischen Aufschlag auf max. 0,15€ reduzieren
 - Funktionen für Export usw. anpassen
 - Auswertungsexcel erstellen mitsamt grafischer Darstellungen
+
+-- 15.12.2025--
+
+- Präsentation mit HTW-Overlay überziehen und fachlich/inhaltlich fertig bekommen
+- Norwegen mit in Datenanalyse und Auswertung aufnehmen(falls möglich)
