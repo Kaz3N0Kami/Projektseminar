@@ -26,6 +26,9 @@ Public Class DynPlus100
     Dim anzahl As Long
     Dim flag As Boolean  ' commong flag for tests - only temporary usage at local places !
 
+    ' Aufschlagstabelle
+    Dim aufschlagDict As Dictionary(Of Decimal, Decimal)
+
 
     Sub Applog(text As String, Optional Flag_crlf As Boolean = True, Optional options As String = "")
         ' write Applog - or to GUI or to somewhre (file 
@@ -233,7 +236,13 @@ Public Class DynPlus100
                 REM weite Verschiebung == nicht mehr relevant - war nicht optimal !!!
                 REM == nicht mehr relevant - war nicht optimal !!!
 
-                Dim dict = LoadAufschlagDict($"aufschlag{Aufschlagstabelle.Text}.csv")
+                Dim dict As Dictionary(Of Decimal, Decimal)
+
+                If aufschlagDict Is Nothing Then
+                    aufschlagDict = LoadAufschlagDict($"aufschlag{Aufschlagstabelle.Text}.csv")
+                End If
+                dict = aufschlagDict
+
 
                 ' Alle p0_min suchen die <= p0 sind → größtes nehmen
                 Dim match = dict _
@@ -334,6 +343,7 @@ Public Class DynPlus100
 
         Applog("Start Simulation of SzenarioID=" & sz & " Debugglevel = " & deblevel, True, "Error")
         Run_simulation(sz, deblevel, options)
+        aufschlagDict = Nothing
     End Sub
 
     Private Sub DynPlus100_Load(sender As Object, e As EventArgs) Handles MyBase.Load
