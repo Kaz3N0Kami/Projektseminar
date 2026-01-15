@@ -30,7 +30,12 @@
 - Funktionen für Export usw. anpassen
 - Auswertungsexcel erstellen mitsamt grafischer Darstellungen
 
--- 15.12.2025--
+-- 05.01.2026--
 
 - Präsentation mit HTW-Overlay überziehen und fachlich/inhaltlich fertig bekommen
 - Norwegen mit in Datenanalyse und Auswertung aufnehmen(falls möglich)
+
+-- 12.01.2026--
+
+- Präsentation fachlich/inhaltlich fertig bekommen
+- Spanien mit in Datenanalyse und Auswertung aufnehmen(falls möglich)
