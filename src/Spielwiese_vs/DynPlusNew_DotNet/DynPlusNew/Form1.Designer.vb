@@ -33,6 +33,8 @@ Partial Class DynPlus100
         ClearScreen = New Button()
         Label2 = New Label()
         Aufschlagstabelle = New ComboBox()
+        Label4 = New Label()
+        Landname = New ComboBox()
         SuspendLayout()
         ' 
         ' Start_Simulation
@@ -155,11 +157,35 @@ Partial Class DynPlus100
         Aufschlagstabelle.TabIndex = 11
         Aufschlagstabelle.Text = "1"
         ' 
+        ' Label4
+        ' 
+        Label4.AutoSize = True
+        Label4.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        Label4.Location = New Point(545, 26)
+        Label4.Name = "Label4"
+        Label4.Size = New Size(62, 21)
+        Label4.TabIndex = 14
+        Label4.Text = "Länder"
+        ' 
+        ' Landname
+        ' 
+        Landname.Font = New Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, CByte(0))
+        Landname.FormattingEnabled = True
+        Landname.Items.AddRange(New Object() {"DE", "ESP"})
+        Landname.Location = New Point(697, 23)
+        Landname.Margin = New Padding(3, 2, 3, 2)
+        Landname.Name = "Landname"
+        Landname.Size = New Size(56, 29)
+        Landname.TabIndex = 13
+        Landname.Text = "DE"
+        ' 
         ' DynPlus100
         ' 
         AutoScaleDimensions = New SizeF(7F, 15F)
         AutoScaleMode = AutoScaleMode.Font
         ClientSize = New Size(1144, 586)
+        Controls.Add(Label4)
+        Controls.Add(Landname)
         Controls.Add(Label2)
         Controls.Add(Aufschlagstabelle)
         Controls.Add(ClearScreen)
@@ -189,5 +215,7 @@ Partial Class DynPlus100
     Friend WithEvents ClearScreen As Button
     Friend WithEvents Label2 As Label
     Friend WithEvents Aufschlagstabelle As ComboBox
+    Friend WithEvents Label4 As Label
+    Friend WithEvents Landname As ComboBox
 
 End Class

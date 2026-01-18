@@ -332,9 +332,16 @@ Public Class DynPlus100
     Sub Init_and_start_simulation(options As String)
         ' SIM function for Dyn prices - then main on-top simulation calling function 
         Dim InputData_filename As String
-        InputData_filename = ".\data\Preisdaten_Tab1.csv"
+        If $"{Landname.Text}" = "DE" Then
+            InputData_filename = ".\data\Preisdaten_Tab1.csv"
+        ElseIf $"{Landname.Text}" = "ESP" Then
+            InputData_filename = ".\data\ESP_PRICE_DEC.csv"
+        Else
+            InputData_filename = ".\data\Preisdaten_Tab1.csv"
+        End If
+
         Applog("Init ..", False)
-        Applog("Load data from: " + InputData_filename + vbCrLf)
+            Applog("Load data from: " + InputData_filename + vbCrLf)
         Dim sz As Long : sz = 7   REM SzenarioID
         Dim deblevelstring As String ' Debugglevel
         deblevelstring = "" & Debuglevel.Text
@@ -445,8 +452,14 @@ Public Class DynPlus100
             Applog("Keine TimeSeries-Daten geladen - lade Szenario mit ID=" & szenarioID)
             ' CSV-Import: Erwartet Spalten: datum,p0,pb (Long, Double, Double)
             REM filename = "C:\Daten\dev\__EnergieDynPreisPlus\___DBEnergyLux\___c#\Preisdaten_Tab1.csv"
-            Dim filenamePriceData = ".\data\Preisdaten_Tab1.csv"
-
+            Dim filenamePriceData
+            If $"{Landname.Text}" = "DE" Then
+                filenamePriceData = ".\data\Preisdaten_Tab1.csv"
+            ElseIf $"{Landname.Text}" = "ESP" Then
+                filenamePriceData = ".\data\ESP_PRICE_DEC.csv"
+            Else
+                filenamePriceData = ".\data\Preisdaten_Tab1.csv"
+            End If
             ' ofd.Filter = "CSV-Dateien (*.csv)|*.csv|Alle Dateien (*.*)|*.*"
             ' If ofd.ShowDialog() = DialogResult.OK Then
             Dim lines() As String = IO.File.ReadAllLines(filenamePriceData)
@@ -870,7 +883,7 @@ Public Class DynPlus100
 
         Dim filenameSzenarioExport As String
         filenameSzenarioExport = filenameSzenario.Substring(0, Len(filenameSzenario) - 4)
-        filenameSzenarioExport = filenameSzenarioExport & $"_aufschlag_{Aufschlagstabelle.Text}" & "_Export.csv"
+        filenameSzenarioExport = filenameSzenarioExport & $"_Land_{Landname.Text}_aufschlag_{Aufschlagstabelle.Text}" & "_Export.csv"
         Export_to_CSV_meparts(filenameSzenarioExport)
         Applog("Results exported to " & filenameSzenarioExport)
         If SaveLog Then
